@@ -3,141 +3,351 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#0b1020">
-    <title>Router diagnostics</title>
+    <meta name="theme-color" content="#f4f7fc">
+    <title>DJE Networks | Operations</title>
     <style>
         :root {
-            color-scheme: dark;
+            color-scheme: light;
             font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background: #0b1020;
-            color: #edf2ff;
+            color: #17243b;
+            background: #f4f7fc;
             font-synthesis: none;
             text-rendering: optimizeLegibility;
-            --muted: #9aa8c2;
-            --line: rgba(148, 163, 184, 0.16);
-            --panel: rgba(17, 26, 48, 0.84);
-            --accent: #70e1d1;
-            --accent-strong: #38cdbc;
+            --navy: #101e3a;
+            --navy-soft: #1d3157;
+            --blue: #2867e8;
+            --blue-dark: #1d50bb;
+            --cyan: #66e0d0;
+            --ink: #17243b;
+            --muted: #718099;
+            --line: #e4eaf3;
+            --surface: #ffffff;
+            --canvas: #f4f7fc;
+            --green: #15936f;
+            --red: #c03d54;
+            --shadow: 0 12px 35px rgba(28, 48, 82, 0.06);
         }
 
         * {
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
+            min-width: 320px;
             min-height: 100vh;
             margin: 0;
-            background:
-                radial-gradient(ellipse at 12% 0%, rgba(35, 91, 128, 0.24), transparent 38rem),
-                radial-gradient(ellipse at 100% 20%, rgba(47, 70, 127, 0.18), transparent 34rem),
-                #0b1020;
+            background: var(--canvas);
         }
 
         button, input {
             font: inherit;
         }
 
-        button:focus-visible, input:focus-visible, summary:focus-visible {
-            outline: 3px solid #facc15;
+        button:focus-visible, input:focus-visible, a:focus-visible, summary:focus-visible {
+            outline: 3px solid #f3bb4e;
             outline-offset: 3px;
         }
 
-        .shell {
-            width: min(100% - 40px, 1040px);
-            margin: 0 auto;
-            padding: 48px 0 64px;
+        a {
+            color: inherit;
+            text-decoration: none;
         }
 
-        .topline {
+        .app-layout {
+            display: grid;
+            min-height: 100vh;
+            grid-template-columns: 248px minmax(0, 1fr);
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 0;
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+            padding: 26px 17px 18px;
+            background: var(--navy);
+            color: #d7e1f3;
+        }
+
+        .brand {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 22px;
-            color: #b7c5df;
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
+            gap: 12px;
+            padding: 0 8px;
         }
 
         .brand-mark {
             display: grid;
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 40px;
+            flex: 0 0 auto;
             place-items: center;
-            border: 1px solid rgba(112, 225, 209, 0.3);
-            border-radius: 9px;
-            background: rgba(112, 225, 209, 0.1);
-            color: var(--accent);
+            border: 1px solid rgba(102, 224, 208, 0.35);
+            border-radius: 12px;
+            background: rgba(102, 224, 208, 0.11);
+            color: var(--cyan);
         }
 
-        .hero {
+        .brand-name {
+            display: block;
+            color: #fff;
+            font-size: 0.88rem;
+            font-weight: 800;
+            letter-spacing: 0.11em;
+        }
+
+        .brand-caption {
+            display: block;
+            margin-top: 4px;
+            color: #90a2bf;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+        }
+
+        .nav-label {
+            margin: 38px 11px 12px;
+            color: #8092af;
+            font-size: 0.67rem;
+            font-weight: 800;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+        }
+
+        .side-nav {
+            display: grid;
+            gap: 6px;
+        }
+
+        .nav-link {
             display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            gap: 28px;
-            padding: 8px 0 30px;
+            min-height: 44px;
+            align-items: center;
+            gap: 12px;
+            padding: 0 12px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            color: #aab8cf;
+            font-size: 0.86rem;
+            font-weight: 600;
+            transition: background 150ms ease, color 150ms ease;
         }
 
-        h1, h2, p {
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+        }
+
+        .nav-link.active {
+            border-color: rgba(116, 161, 255, 0.19);
+            background: rgba(55, 111, 226, 0.2);
+            color: #fff;
+        }
+
+        .nav-link.active svg {
+            color: #8eb3ff;
+        }
+
+        .nav-link svg {
+            flex: 0 0 auto;
+            color: #8da0bd;
+        }
+
+        .sidebar-footer {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: auto;
+            padding: 14px 12px;
+            border: 1px solid rgba(180, 198, 226, 0.13);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.035);
+        }
+
+        .sidebar-dot, .status-dot {
+            width: 8px;
+            height: 8px;
+            flex: 0 0 auto;
+            margin-top: 4px;
+            border-radius: 50%;
+            background: var(--cyan);
+            box-shadow: 0 0 0 4px rgba(102, 224, 208, 0.12);
+        }
+
+        .sidebar-dot.error, .status-dot.error {
+            background: #ef8292;
+            box-shadow: 0 0 0 4px rgba(239, 130, 146, 0.13);
+        }
+
+        .sidebar-footer strong {
+            display: block;
+            color: #eaf0fb;
+            font-size: 0.75rem;
+        }
+
+        .sidebar-footer small {
+            display: block;
+            margin-top: 4px;
+            color: #91a2bc;
+            font-size: 0.69rem;
+            line-height: 1.45;
+        }
+
+        .workspace {
+            min-width: 0;
+        }
+
+        .topbar {
+            display: flex;
+            min-height: 68px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 0 clamp(22px, 4vw, 54px);
+            border-bottom: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.82);
+        }
+
+        .breadcrumb {
+            color: var(--muted);
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .breadcrumb strong {
+            color: var(--ink);
+        }
+
+        .topbar-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #64728a;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .content {
+            width: min(100%, 1320px);
+            margin: 0 auto;
+            padding: 34px clamp(22px, 4vw, 54px) 48px;
+        }
+
+        h1, h2, h3, p {
             margin-top: 0;
         }
 
-        h1 {
-            margin-bottom: 10px;
-            font-size: clamp(2rem, 5vw, 3.2rem);
-            letter-spacing: -0.055em;
-            line-height: 1.05;
+        .hero {
+            position: relative;
+            display: flex;
+            min-height: 218px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 28px;
+            overflow: hidden;
+            padding: clamp(25px, 4vw, 40px);
+            border-radius: 20px;
+            background:
+                radial-gradient(circle at 85% 4%, rgba(120, 179, 255, 0.32), transparent 17rem),
+                linear-gradient(115deg, #14325f, #1d4d8c 63%, #246bb4);
+            box-shadow: 0 16px 38px rgba(28, 74, 140, 0.18);
+            color: #fff;
         }
 
-        .subtitle {
-            max-width: 580px;
+        .hero::after {
+            position: absolute;
+            right: 19%;
+            bottom: -155px;
+            width: 300px;
+            height: 300px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            content: "";
+            box-shadow: 0 0 0 32px rgba(255, 255, 255, 0.035), 0 0 0 65px rgba(255, 255, 255, 0.025);
+            pointer-events: none;
+        }
+
+        .hero-copy, .hero-action {
+            position: relative;
+            z-index: 1;
+        }
+
+        .eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            color: #b7d0f7;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+        }
+
+        .eyebrow-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--cyan);
+        }
+
+        .hero h1 {
+            max-width: 640px;
+            margin-bottom: 10px;
+            color: #fff;
+            font-size: clamp(1.8rem, 3.8vw, 2.65rem);
+            letter-spacing: -0.045em;
+            line-height: 1.12;
+        }
+
+        .hero-copy p:last-child {
+            max-width: 620px;
             margin-bottom: 0;
-            color: var(--muted);
-            font-size: 1rem;
+            color: #d2e0f5;
+            font-size: 0.93rem;
             line-height: 1.65;
         }
 
-        .run-form {
-            flex: 0 0 auto;
-        }
-
-        .primary-button, .tool-button, .copy-button {
+        .primary-button {
             display: inline-flex;
+            min-height: 48px;
             align-items: center;
             justify-content: center;
-            gap: 9px;
-            border: 1px solid transparent;
-            border-radius: 11px;
-            cursor: pointer;
-            font-weight: 700;
-            transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
-        }
-
-        .primary-button {
-            min-height: 48px;
+            gap: 10px;
             padding: 0 18px;
-            background: var(--accent);
-            color: #06201e;
-            box-shadow: 0 8px 24px rgba(56, 205, 188, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            background: #fff;
+            box-shadow: 0 8px 18px rgba(5, 23, 54, 0.15);
+            color: #19427c;
+            cursor: pointer;
+            font-size: 0.84rem;
+            font-weight: 800;
+            white-space: nowrap;
+            transition: transform 150ms ease, background 150ms ease;
         }
 
         .primary-button:hover:not(:disabled) {
             transform: translateY(-1px);
-            background: #a0f3e7;
+            background: #eaf3ff;
         }
 
         .primary-button:disabled {
             cursor: wait;
-            opacity: 0.8;
+            opacity: 0.75;
         }
 
         .spinner {
             display: none;
             width: 16px;
             height: 16px;
-            border: 2px solid rgba(6, 32, 30, 0.28);
-            border-top-color: #06201e;
+            border: 2px solid rgba(25, 66, 124, 0.22);
+            border-top-color: #19427c;
             border-radius: 50%;
             animation: spin 700ms linear infinite;
         }
@@ -150,220 +360,527 @@
             to { transform: rotate(360deg); }
         }
 
-        .panel {
-            border: 1px solid var(--line);
-            border-radius: 18px;
-            background: var(--panel);
-            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(14px);
-        }
-
-        .command-list {
-            padding: 22px;
-        }
-
-        .section-heading, .toolbar, .card-heading {
+        .state-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 16px;
+            margin: 25px 0 13px;
         }
 
-        .section-heading {
-            margin-bottom: 18px;
-        }
-
-        .section-heading h2 {
-            margin-bottom: 5px;
-            font-size: 1.12rem;
+        .state-row h2 {
+            margin-bottom: 0;
+            font-size: 1.02rem;
             letter-spacing: -0.02em;
         }
 
-        .section-heading p {
+        .status-chip {
+            display: inline-flex;
+            min-height: 29px;
+            align-items: center;
+            gap: 8px;
+            padding: 0 10px;
+            border: 1px solid #dce9e5;
+            border-radius: 999px;
+            background: #f0faf6;
+            color: #168263;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+
+        .status-chip .status-dot {
+            width: 7px;
+            height: 7px;
+            margin: 0;
+            background: currentColor;
+            box-shadow: none;
+        }
+
+        .status-chip.error {
+            border-color: #f2d8de;
+            background: #fff4f5;
+            color: var(--red);
+        }
+
+        .status-chip.ready {
+            border-color: #dfe7f3;
+            background: #f7f9fd;
+            color: #667792;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .stat-card, .panel {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card {
+            display: flex;
+            min-height: 106px;
+            align-items: flex-start;
+            gap: 13px;
+            padding: 17px;
+        }
+
+        .stat-icon {
+            display: grid;
+            width: 38px;
+            height: 38px;
+            flex: 0 0 auto;
+            place-items: center;
+            border-radius: 11px;
+            background: #edf4ff;
+            color: var(--blue);
+        }
+
+        .stat-card:nth-child(2) .stat-icon {
+            background: #e9f8f5;
+            color: #158b76;
+        }
+
+        .stat-card:nth-child(3) .stat-icon {
+            background: #fff5e8;
+            color: #b97721;
+        }
+
+        .stat-label {
+            margin: 1px 0 7px;
+            color: var(--muted);
+            font-size: 0.71rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            margin-bottom: 4px;
+            color: var(--ink);
+            font-size: 1.08rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .stat-detail {
+            margin-bottom: 0;
+            color: #8390a5;
+            font-size: 0.72rem;
+        }
+
+        .section-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.45fr) minmax(270px, 0.8fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .panel {
+            min-width: 0;
+            padding: 21px;
+        }
+
+        .panel-heading {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .panel-heading h2 {
+            margin-bottom: 5px;
+            font-size: 0.98rem;
+            letter-spacing: -0.02em;
+        }
+
+        .panel-heading p {
             margin-bottom: 0;
             color: var(--muted);
-            font-size: 0.88rem;
-        }
-
-        .count-badge {
-            flex: 0 0 auto;
-            padding: 6px 10px;
-            border: 1px solid var(--line);
-            border-radius: 999px;
-            color: #c5d1e6;
-            font-size: 0.78rem;
-            font-weight: 700;
-        }
-
-        .notice {
-            margin: 0 0 18px;
-            padding: 14px 16px;
-            border: 1px solid var(--line);
-            border-radius: 12px;
+            font-size: 0.77rem;
             line-height: 1.55;
         }
 
-        .error {
-            border-color: rgba(248, 113, 113, 0.35);
-            background: rgba(127, 29, 29, 0.2);
-            color: #fecaca;
+        .soft-badge {
+            flex: 0 0 auto;
+            padding: 6px 9px;
+            border-radius: 7px;
+            background: #edf4ff;
+            color: #3469bf;
+            font-size: 0.68rem;
+            font-weight: 800;
         }
 
-        .toolbar {
-            margin-bottom: 16px;
+        .check-list {
+            display: grid;
+            gap: 2px;
+            margin: 0 0 18px;
+            padding: 0;
+            list-style: none;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 10px 0;
+            border-bottom: 1px solid #eff2f7;
+        }
+
+        .check-item:last-child {
+            border-bottom: 0;
+        }
+
+        .check-number {
+            display: grid;
+            width: 27px;
+            height: 27px;
+            flex: 0 0 auto;
+            place-items: center;
+            border-radius: 8px;
+            background: #f0f5ff;
+            color: #4774c2;
+            font-size: 0.68rem;
+            font-weight: 800;
+        }
+
+        .check-copy {
+            min-width: 0;
+        }
+
+        .check-copy code {
+            color: #263d60;
+            font: 700 0.78rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            overflow-wrap: anywhere;
+        }
+
+        .check-copy small {
+            display: block;
+            margin-top: 2px;
+            color: #8793a7;
+            font-size: 0.69rem;
+        }
+
+        .run-form {
+            margin: 0;
+        }
+
+        .run-form .primary-button {
+            min-height: 42px;
+            border: 0;
+            background: var(--blue);
+            box-shadow: none;
+            color: #fff;
+        }
+
+        .run-form .primary-button:hover:not(:disabled) {
+            background: var(--blue-dark);
+        }
+
+        .run-form .spinner {
+            border-color: rgba(255, 255, 255, 0.32);
+            border-top-color: #fff;
+        }
+
+        .profile-list {
+            display: grid;
+            gap: 0;
+            margin: 0;
+        }
+
+        .profile-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 12px 0;
+            border-bottom: 1px solid #eff2f7;
+            font-size: 0.76rem;
+        }
+
+        .profile-row:last-child {
+            border-bottom: 0;
+        }
+
+        .profile-row dt {
+            color: var(--muted);
+        }
+
+        .profile-row dd {
+            margin: 0;
+            color: #293d5d;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .hint {
+            margin: 14px 0 0;
+            padding: 11px 12px;
+            border-radius: 9px;
+            background: #f4f8ff;
+            color: #61728f;
+            font-size: 0.73rem;
+            line-height: 1.55;
+        }
+
+        .notice {
+            display: flex;
+            gap: 11px;
+            margin: 16px 0;
+            padding: 14px 15px;
+            border: 1px solid #f0d7dc;
+            border-radius: 12px;
+            background: #fff5f6;
+            color: #9c3448;
+        }
+
+        .notice svg {
+            flex: 0 0 auto;
+            margin-top: 1px;
+        }
+
+        .notice strong {
+            display: block;
+            margin-bottom: 3px;
+            font-size: 0.81rem;
+        }
+
+        .notice p {
+            margin-bottom: 0;
+            font-size: 0.75rem;
+            line-height: 1.55;
+            overflow-wrap: anywhere;
+        }
+
+        .results-panel {
+            margin-top: 16px;
+        }
+
+        .results-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 14px;
         }
 
         .search-wrap {
             position: relative;
-            flex: 1 1 280px;
-            max-width: 460px;
+            width: min(100%, 370px);
         }
 
         .search-wrap svg {
             position: absolute;
             top: 50%;
-            left: 13px;
-            color: #8290a9;
+            left: 12px;
+            color: #8a97aa;
             transform: translateY(-50%);
             pointer-events: none;
         }
 
         .search-input {
             width: 100%;
-            min-height: 42px;
-            padding: 0 14px 0 40px;
+            min-height: 38px;
+            padding: 0 12px 0 37px;
             border: 1px solid var(--line);
-            border-radius: 10px;
-            background: rgba(7, 13, 27, 0.55);
-            color: #edf2ff;
+            border-radius: 9px;
+            background: #fff;
+            color: var(--ink);
+            font-size: 0.76rem;
         }
 
         .search-input::placeholder {
-            color: #7f8ca4;
+            color: #94a0b2;
         }
 
         .toolbar-actions {
             display: flex;
-            gap: 8px;
+            gap: 7px;
         }
 
         .tool-button, .copy-button {
-            min-height: 40px;
-            padding: 0 12px;
-            border-color: var(--line);
-            background: rgba(255, 255, 255, 0.025);
-            color: #cbd6e8;
-            font-size: 0.82rem;
+            display: inline-flex;
+            min-height: 36px;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 0 10px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #fff;
+            color: #53647e;
+            cursor: pointer;
+            font-size: 0.72rem;
+            font-weight: 700;
+            transition: border-color 140ms ease, background 140ms ease, color 140ms ease;
         }
 
         .tool-button:hover, .copy-button:hover {
-            border-color: rgba(112, 225, 209, 0.4);
-            background: rgba(112, 225, 209, 0.08);
-            color: #e8fffb;
+            border-color: #b9cbed;
+            background: #f4f8ff;
+            color: #2457a5;
+        }
+
+        .count-badge {
+            flex: 0 0 auto;
+            padding: 6px 9px;
+            border-radius: 999px;
+            background: #f0f4fa;
+            color: #60718a;
+            font-size: 0.7rem;
+            font-weight: 800;
         }
 
         .command-card {
-            margin-top: 12px;
+            margin-top: 10px;
             overflow: hidden;
             border: 1px solid var(--line);
-            border-radius: 13px;
-            background: rgba(7, 13, 27, 0.42);
+            border-radius: 11px;
+            background: #fff;
         }
 
         .card-heading {
-            min-height: 62px;
-            padding: 12px 14px 12px 17px;
+            display: flex;
+            min-height: 55px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 12px 10px 14px;
         }
 
         .command-title {
             display: flex;
-            align-items: center;
-            gap: 11px;
             min-width: 0;
-        }
-
-        .command-index {
-            display: grid;
-            width: 28px;
-            height: 28px;
-            flex: 0 0 auto;
-            place-items: center;
-            border-radius: 8px;
-            background: rgba(112, 225, 209, 0.1);
-            color: var(--accent);
-            font-size: 0.75rem;
-            font-weight: 800;
+            align-items: center;
+            gap: 10px;
         }
 
         .command-title code {
+            color: #263d60;
+            font: 700 0.78rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
             overflow-wrap: anywhere;
-            color: #e5eeff;
-            font-size: 0.9rem;
         }
 
         .copy-button {
-            min-height: 34px;
+            min-height: 32px;
             flex: 0 0 auto;
-            padding: 0 10px;
+            padding: 0 9px;
         }
 
         details {
-            border-top: 1px solid var(--line);
+            border-top: 1px solid #edf1f6;
         }
 
         summary {
-            padding: 10px 17px;
-            color: #9eacc4;
+            padding: 9px 14px;
+            color: #73819a;
             cursor: pointer;
-            font-size: 0.78rem;
+            font-size: 0.7rem;
             font-weight: 700;
             list-style-position: inside;
         }
 
         pre {
-            max-height: 520px;
+            max-height: 440px;
             margin: 0;
-            padding: 15px 18px 18px;
+            padding: 14px 16px 17px;
             overflow: auto;
-            border-top: 1px solid rgba(148, 163, 184, 0.08);
-            color: #c4d2e8;
-            font: 0.84rem/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            border-top: 1px solid #f0f3f7;
+            background: #fbfcfe;
+            color: #34445e;
+            font: 0.75rem/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
             tab-size: 4;
             white-space: pre-wrap;
             overflow-wrap: anywhere;
         }
 
         .empty-state {
-            display: grid;
-            min-height: 230px;
-            place-items: center;
-            padding: 30px;
-            text-align: center;
+            display: flex;
+            min-height: 130px;
+            align-items: center;
+            gap: 14px;
+            padding: 20px 4px 4px;
         }
 
         .empty-icon {
             display: grid;
-            width: 48px;
-            height: 48px;
-            margin: 0 auto 15px;
+            width: 42px;
+            height: 42px;
+            flex: 0 0 auto;
             place-items: center;
-            border: 1px solid rgba(112, 225, 209, 0.22);
-            border-radius: 15px;
-            background: rgba(112, 225, 209, 0.08);
-            color: var(--accent);
+            border-radius: 12px;
+            background: #edf4ff;
+            color: var(--blue);
         }
 
-        .empty-state h2 {
-            margin-bottom: 7px;
-            font-size: 1rem;
+        .empty-state h3 {
+            margin-bottom: 5px;
+            font-size: 0.85rem;
         }
 
         .empty-state p {
-            max-width: 360px;
+            max-width: 520px;
             margin-bottom: 0;
             color: var(--muted);
-            font-size: 0.88rem;
-            line-height: 1.6;
+            font-size: 0.75rem;
+            line-height: 1.55;
+        }
+
+        .setup-panel {
+            margin-top: 16px;
+        }
+
+        .setup-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .setup-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px;
+            border: 1px solid #edf1f6;
+            border-radius: 10px;
+            background: #fbfcfe;
+        }
+
+        .step-number {
+            display: grid;
+            width: 24px;
+            height: 24px;
+            flex: 0 0 auto;
+            place-items: center;
+            border-radius: 7px;
+            background: #eaf1ff;
+            color: var(--blue);
+            font-size: 0.68rem;
+            font-weight: 800;
+        }
+
+        .setup-step p {
+            margin: 2px 0 0;
+            color: #65748c;
+            font-size: 0.72rem;
+            line-height: 1.5;
+        }
+
+        .setup-step code {
+            color: #304c77;
+            font: 700 0.7rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        }
+
+        .footer {
+            padding: 20px 0 4px;
+            color: #98a3b4;
+            font-size: 0.68rem;
+            text-align: center;
         }
 
         .sr-only {
@@ -382,38 +899,159 @@
             display: none !important;
         }
 
-        @media (max-width: 680px) {
-            .shell {
-                width: min(100% - 28px, 1040px);
-                padding-top: 28px;
+        @media (max-width: 980px) {
+            .app-layout {
+                grid-template-columns: 214px minmax(0, 1fr);
+            }
+
+            .section-grid {
+                grid-template-columns: minmax(0, 1.2fr) minmax(250px, 0.8fr);
+            }
+        }
+
+        @media (max-width: 760px) {
+            .app-layout {
+                display: block;
+            }
+
+            .sidebar {
+                position: static;
+                height: auto;
+                padding: 13px 16px;
+            }
+
+            .brand {
+                padding: 0 3px 12px;
+            }
+
+            .brand-mark {
+                width: 35px;
+                height: 35px;
+            }
+
+            .nav-label, .sidebar-footer {
+                display: none;
+            }
+
+            .side-nav {
+                display: flex;
+                gap: 6px;
+                overflow-x: auto;
+                padding-bottom: 1px;
+            }
+
+            .nav-link {
+                min-height: 37px;
+                flex: 0 0 auto;
+                padding: 0 10px;
+                font-size: 0.76rem;
+            }
+
+            .nav-link svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            .topbar {
+                min-height: 55px;
+            }
+
+            .content {
+                padding-top: 24px;
             }
 
             .hero {
-                align-items: stretch;
+                align-items: flex-start;
                 flex-direction: column;
-                gap: 20px;
-                padding-bottom: 24px;
             }
 
-            .run-form, .primary-button {
+            .hero-action, .hero-action .run-form, .hero-action .primary-button {
                 width: 100%;
             }
 
-            .command-list {
+            .section-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .topbar {
+                padding: 0 16px;
+            }
+
+            .topbar-label {
+                display: none;
+            }
+
+            .content {
+                padding: 18px 14px 32px;
+            }
+
+            .hero {
+                min-height: 0;
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 20px;
+                padding: 23px 20px;
+                border-radius: 15px;
+            }
+
+            .hero-action, .run-form, .run-form .primary-button {
+                width: 100%;
+            }
+
+            .hero h1 {
+                font-size: 1.85rem;
+            }
+
+            .state-row {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 8px;
+                margin-top: 21px;
+            }
+
+            .stats-grid, .setup-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                min-height: 88px;
+                padding: 14px;
+            }
+
+            .panel {
                 padding: 16px;
             }
 
-            .toolbar {
+            .results-toolbar {
                 align-items: stretch;
                 flex-direction: column;
             }
 
             .search-wrap {
-                max-width: none;
+                width: 100%;
             }
 
             .toolbar-actions .tool-button {
                 flex: 1;
+            }
+
+            .card-heading {
+                padding-left: 10px;
+            }
+
+            .command-title {
+                gap: 7px;
+            }
+
+            .command-index {
+                width: 23px;
+                height: 23px;
+            }
+
+            .command-title code {
+                font-size: 0.7rem;
             }
         }
 
@@ -428,119 +1066,325 @@
     </style>
 </head>
 <body>
-    <main class="shell">
-        <div class="topline">
-            <span class="brand-mark" aria-hidden="true">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
-                    <path d="M5 8.5 12 4l7 4.5-7 4.5-7-4.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
-                    <path d="m5 12 7 4.5 7-4.5M5 15.5 12 20l7-4.5" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
-                </svg>
-            </span>
-            Network tools <span aria-hidden="true">/</span> Router console
-        </div>
-
-        <section class="hero" aria-labelledby="page-title">
-            <div>
-                <h1 id="page-title">Router diagnostics</h1>
-                <p class="subtitle">Run a quick health check and review the command output in one place.</p>
-            </div>
-            <form class="run-form" id="run-form" method="post">
-                <button class="primary-button" id="run-button" type="submit">
-                    <span class="spinner" aria-hidden="true"></span>
-                    <svg class="run-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.64 5.64l2.12 2.12m8.48 8.48 2.12 2.12m0-12.72-2.12 2.12m-8.48 8.48-2.12 2.12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <a class="brand" href="#overview" aria-label="DJE Networks overview">
+                <span class="brand-mark" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 8.5 12 4l7 4.5-7 4.5-7-4.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                        <path d="m5 12 7 4.5 7-4.5M5 15.5 12 20l7-4.5" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
                     </svg>
-                    <span id="run-label">Run diagnostics</span>
-                </button>
-            </form>
-        </section>
+                </span>
+                <span>
+                    <span class="brand-name">DJE NETWORKS</span>
+                    <span class="brand-caption">PROVIDER CONSOLE</span>
+                </span>
+            </a>
 
-        {% if error %}
-            <div class="notice error" role="alert">{{ error }}</div>
-        {% endif %}
+            <p class="nav-label">Workspace</p>
+            <nav class="side-nav" aria-label="Main navigation">
+                <a class="nav-link active" href="#overview" aria-current="page">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <rect x="3" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.7"/>
+                        <rect x="13" y="3" width="8" height="5" rx="2" stroke="currentColor" stroke-width="1.7"/>
+                        <rect x="13" y="10" width="8" height="11" rx="2" stroke="currentColor" stroke-width="1.7"/>
+                        <rect x="3" y="13" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.7"/>
+                    </svg>
+                    Overview
+                </a>
+                <a class="nav-link" href="#diagnostics">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M4 13h4l2.2-7 3.6 12 2.2-5H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Diagnostics
+                </a>
+                <a class="nav-link" href="#results">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M7 3h7l5 5v13H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                        <path d="M14 3v5h5M9 13h6m-6 4h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                    </svg>
+                    Command output
+                </a>
+                <a class="nav-link" href="#connection">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/>
+                        <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.7 2.9-.2-.1a1.7 1.7 0 0 0-1.9.3l-.2.2h-3.4l-.1-.2a1.7 1.7 0 0 0-1.8-.3l-.2.1-2.9-1.7.1-.2a1.7 1.7 0 0 0-.3-1.9l-.2-.1v-3.4l.2-.1a1.7 1.7 0 0 0 .3-1.9l-.1-.2 1.7-2.9.2.1a1.7 1.7 0 0 0 1.9-.3l.1-.2h3.4l.1.2a1.7 1.7 0 0 0 1.9.3l.2-.1 2.9 1.7-.1.2a1.7 1.7 0 0 0 .3 1.9l.2.1v3.4l-.2.1Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+                    </svg>
+                    Connection setup
+                </a>
+            </nav>
 
-        {% set commands = ["show version", "show ip interface brief", "show running-config"] %}
-        {% if results %}
-            <section class="panel command-list" aria-labelledby="results-title">
-                <div class="section-heading">
-                    <div>
-                        <h2 id="results-title">Command output</h2>
-                        <p>Review, search, or copy the results from this run.</p>
+            <div class="sidebar-footer">
+                <span class="sidebar-dot{% if error %} error{% endif %}" aria-hidden="true"></span>
+                <span>
+                    <strong>{% if error %}Configuration needs attention{% elif results %}Diagnostics complete{% else %}Ready for diagnostics{% endif %}</strong>
+                    <small>{% if error %}Review the connection details{% elif results %}Results are available below{% else %}Run a read-only router check{% endif %}</small>
+                </span>
+            </div>
+        </aside>
+
+        <div class="workspace">
+            <header class="topbar">
+                <div class="breadcrumb">DJE Networks <span aria-hidden="true">/</span> <strong>Operations</strong></div>
+                <div class="topbar-label">
+                    <span class="status-dot{% if error %} error{% endif %}" aria-hidden="true"></span>
+                    {% if error %}Action required{% elif results %}Latest run complete{% else %}Operations console{% endif %}
+                </div>
+            </header>
+
+            <main class="content" id="overview">
+                <section class="hero" aria-labelledby="page-title">
+                    <div class="hero-copy">
+                        <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> Network operations</p>
+                        <h1 id="page-title">Reliable service starts with visibility.</h1>
+                        <p>Run a focused router health check, review device output, and keep your network operations moving.</p>
                     </div>
-                    <span class="count-badge" id="result-count" aria-live="polite">{{ results|length }} commands</span>
-                </div>
-
-                <div class="toolbar">
-                    <label class="search-wrap">
-                        <span class="sr-only">Filter command output</span>
-                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.7"/>
-                            <path d="m16 16 4.2 4.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-                        </svg>
-                        <input class="search-input" id="output-search" type="search" placeholder="Filter commands or output…">
-                    </label>
-                    <div class="toolbar-actions">
-                        <button class="tool-button" id="expand-all" type="button">Expand all</button>
-                        <button class="tool-button" id="collapse-all" type="button">Collapse all</button>
+                    <div class="hero-action">
+                        <form class="run-form" id="run-form" method="post">
+                            <button class="primary-button" id="run-button" type="submit">
+                                <span class="spinner" aria-hidden="true"></span>
+                                <svg class="run-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.64 5.64l2.12 2.12m8.48 8.48 2.12 2.12m0-12.72-2.12 2.12m-8.48 8.48-2.12 2.12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                                </svg>
+                                <span id="run-label">Run network checks</span>
+                            </button>
+                        </form>
                     </div>
-                </div>
+                </section>
 
-                <div id="command-results">
-                    {% for command in commands %}
-                        {% if command in results %}
-                            <article class="command-card" data-command-card>
-                                <div class="card-heading">
-                                    <div class="command-title">
-                                        <span class="command-index" aria-hidden="true">{{ loop.index }}</span>
-                                        <code>{{ command }}</code>
-                                    </div>
-                                    <button class="copy-button" type="button" data-copy-target="output-{{ loop.index }}" aria-label="Copy output for {{ command }}">
-                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                            <rect x="8" y="8" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.7"/>
-                                            <path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="1.7"/>
-                                        </svg>
-                                        <span>Copy</span>
-                                    </button>
-                                </div>
-                                <details open>
-                                    <summary>Output</summary>
-                                    <pre id="output-{{ loop.index }}">{{ results[command] }}</pre>
-                                </details>
-                            </article>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-                <p class="sr-only" id="copy-status" aria-live="polite"></p>
-            </section>
-        {% elif not error %}
-            <section class="panel empty-state" aria-labelledby="empty-title">
-                <div>
-                    <span class="empty-icon" aria-hidden="true">
-                        <svg width="23" height="23" viewBox="0 0 24 24" fill="none">
-                            <rect x="3" y="4" width="18" height="6" rx="2" stroke="currentColor" stroke-width="1.6"/>
-                            <rect x="3" y="14" width="18" height="6" rx="2" stroke="currentColor" stroke-width="1.6"/>
-                            <path d="M7 7h.01M7 17h.01M11 7h6m-6 10h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                        </svg>
+                <div class="state-row">
+                    <h2>Service overview</h2>
+                    <span class="status-chip{% if error %} error{% elif not results %} ready{% endif %}">
+                        <span class="status-dot" aria-hidden="true"></span>
+                        {% if error %}Needs attention{% elif results %}Checks completed{% else %}Ready to run{% endif %}
                     </span>
-                    <h2 id="empty-title">Ready when you are</h2>
-                    <p>Run diagnostics to fetch read-only status from your router. Results will appear here.</p>
                 </div>
-            </section>
-        {% endif %}
-        <p class="sr-only" id="run-status" role="status" aria-live="polite"></p>
-    </main>
+
+                <section class="stats-grid" aria-label="Diagnostics summary">
+                    <article class="stat-card">
+                        <span class="stat-icon" aria-hidden="true">
+                            <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
+                                <path d="M4 13h4l2.2-7 3.6 12 2.2-5H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <div>
+                            <p class="stat-label">Diagnostic checks</p>
+                            <p class="stat-value">3 commands</p>
+                            <p class="stat-detail">Version, interfaces, configuration</p>
+                        </div>
+                    </article>
+                    <article class="stat-card">
+                        <span class="stat-icon" aria-hidden="true">
+                            <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
+                                <path d="m12 3 8 4v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                                <path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <div>
+                            <p class="stat-label">Command scope</p>
+                            <p class="stat-value">Read-only</p>
+                            <p class="stat-detail">Show commands only</p>
+                        </div>
+                    </article>
+                    <article class="stat-card">
+                        <span class="stat-icon" aria-hidden="true">
+                            <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7"/>
+                                <path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                            </svg>
+                        </span>
+                        <div>
+                            <p class="stat-label">Run status</p>
+                            <p class="stat-value">{% if error %}Attention{% elif results %}Complete{% else %}Standby{% endif %}</p>
+                            <p class="stat-detail">{% if error %}Review the message below{% elif results %}Output is ready to review{% else %}Waiting for a manual check{% endif %}</p>
+                        </div>
+                    </article>
+                </section>
+
+                {% if error %}
+                    <div class="notice" role="alert">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/>
+                            <path d="M12 7v5m0 4h.01" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+                        </svg>
+                        <div>
+                            <strong>Unable to complete the diagnostics</strong>
+                            <p>{{ error }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="section-grid">
+                    <section class="panel" id="diagnostics" aria-labelledby="diagnostics-title">
+                        <div class="panel-heading">
+                            <div>
+                                <h2 id="diagnostics-title">Router diagnostics</h2>
+                                <p>A concise snapshot of router health and configuration.</p>
+                            </div>
+                            <span class="soft-badge">3 checks</span>
+                        </div>
+                        <ul class="check-list">
+                            <li class="check-item">
+                                <span class="check-number">01</span>
+                                <span class="check-copy"><code>show version</code><small>Platform and software details</small></span>
+                            </li>
+                            <li class="check-item">
+                                <span class="check-number">02</span>
+                                <span class="check-copy"><code>show ip interface brief</code><small>Interface and address overview</small></span>
+                            </li>
+                            <li class="check-item">
+                                <span class="check-number">03</span>
+                                <span class="check-copy"><code>show running-config</code><small>Active device configuration</small></span>
+                            </li>
+                        </ul>
+                        <form class="run-form" method="post">
+                            <button class="primary-button" type="submit">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.64 5.64l2.12 2.12m8.48 8.48 2.12 2.12m0-12.72-2.12 2.12m-8.48 8.48-2.12 2.12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                                </svg>
+                                Run checks
+                            </button>
+                        </form>
+                    </section>
+
+                    <section class="panel" aria-labelledby="profile-title">
+                        <div class="panel-heading">
+                            <div>
+                                <h2 id="profile-title">Connection profile</h2>
+                                <p>Securely managed by the app environment.</p>
+                            </div>
+                            <span class="soft-badge">CLI</span>
+                        </div>
+                        <dl class="profile-list">
+                            <div class="profile-row"><dt>Target</dt><dd>Configured router</dd></div>
+                            <div class="profile-row"><dt>Credentials</dt><dd>Server environment</dd></div>
+                            <div class="profile-row"><dt>Access</dt><dd>Read-only checks</dd></div>
+                        </dl>
+                        <p class="hint">Connection details are not shown in the browser. Configure them where the Flask app runs.</p>
+                    </section>
+                </div>
+
+                <section class="panel results-panel" id="results" aria-labelledby="results-title">
+                    <div class="panel-heading">
+                        <div>
+                            <h2 id="results-title">Command output</h2>
+                            <p>Search results, expand a command, or copy its output.</p>
+                        </div>
+                        {% if results %}
+                            <span class="count-badge" id="result-count" aria-live="polite">{{ results|length }} commands</span>
+                        {% endif %}
+                    </div>
+
+                    {% if results %}
+                        <div class="results-toolbar">
+                            <label class="search-wrap">
+                                <span class="sr-only">Filter command output</span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.7"/>
+                                    <path d="m16 16 4.2 4.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                                </svg>
+                                <input class="search-input" id="output-search" type="search" placeholder="Filter commands or output…">
+                            </label>
+                            <div class="toolbar-actions">
+                                <button class="tool-button" id="expand-all" type="button">Expand all</button>
+                                <button class="tool-button" id="collapse-all" type="button">Collapse all</button>
+                            </div>
+                        </div>
+
+                        <div id="command-results">
+                            {% set commands = ["show version", "show ip interface brief", "show running-config"] %}
+                            {% for command in commands %}
+                                {% if command in results %}
+                                    <article class="command-card" data-command-card>
+                                        <div class="card-heading">
+                                            <div class="command-title">
+                                                <span class="check-number" aria-hidden="true">{{ loop.index }}</span>
+                                                <code>{{ command }}</code>
+                                            </div>
+                                            <button class="copy-button" type="button" data-copy-target="output-{{ loop.index }}" aria-label="Copy output for {{ command }}">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                    <rect x="8" y="8" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.7"/>
+                                                    <path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="1.7"/>
+                                                </svg>
+                                                <span>Copy</span>
+                                            </button>
+                                        </div>
+                                        <details open>
+                                            <summary>View output</summary>
+                                            <pre id="output-{{ loop.index }}">{{ results[command] }}</pre>
+                                        </details>
+                                    </article>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <p class="sr-only" id="copy-status" aria-live="polite"></p>
+                    {% elif error %}
+                        <div class="empty-state">
+                            <span class="empty-icon" aria-hidden="true">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 8v4m0 4h.01M4.9 19h14.2a1.5 1.5 0 0 0 1.3-2.2L13.3 4.5a1.5 1.5 0 0 0-2.6 0L3.6 16.8A1.5 1.5 0 0 0 4.9 19Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                            <div><h3>No output available</h3><p>Resolve the connection issue above and run the checks again.</p></div>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <span class="empty-icon" aria-hidden="true">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <rect x="3" y="4" width="18" height="6" rx="2" stroke="currentColor" stroke-width="1.7"/>
+                                    <rect x="3" y="14" width="18" height="6" rx="2" stroke="currentColor" stroke-width="1.7"/>
+                                    <path d="M7 7h.01M7 17h.01M11 7h6m-6 10h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                                </svg>
+                            </span>
+                            <div><h3>Your diagnostics will appear here</h3><p>Run the checks to retrieve a fresh snapshot from the configured router.</p></div>
+                        </div>
+                    {% endif %}
+                </section>
+
+                <section class="panel setup-panel" id="connection" aria-labelledby="connection-title">
+                    <div class="panel-heading">
+                        <div>
+                            <h2 id="connection-title">Connection setup</h2>
+                            <p>Router credentials stay on the server and are read from environment variables.</p>
+                        </div>
+                    </div>
+                    <div class="setup-grid">
+                        <div class="setup-step">
+                            <span class="step-number">1</span>
+                            <p>Set <code>ROUTER_IP</code>, <code>ROUTER_PORT</code>, and login variables in the Flask process environment.</p>
+                        </div>
+                        <div class="setup-step">
+                            <span class="step-number">2</span>
+                            <p>Restart the Flask app so it receives the latest connection settings.</p>
+                        </div>
+                        <div class="setup-step">
+                            <span class="step-number">3</span>
+                            <p>Run checks here. If access fails, verify the router address, console port, and credentials.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <p class="sr-only" id="run-status" role="status" aria-live="polite"></p>
+                <footer class="footer">DJE Networks <span aria-hidden="true">·</span> Network provider operations</footer>
+            </main>
+        </div>
+    </div>
 
     <script>
-        const runForm = document.getElementById("run-form");
-        const runButton = document.getElementById("run-button");
-        const runLabel = document.getElementById("run-label");
+        const runForms = document.querySelectorAll(".run-form");
         const runStatus = document.getElementById("run-status");
 
-        runForm.addEventListener("submit", () => {
-            runButton.disabled = true;
-            runButton.classList.add("is-loading");
-            runLabel.textContent = "Running diagnostics…";
-            runStatus.textContent = "Diagnostics are running. Please wait.";
+        runForms.forEach((form) => {
+            form.addEventListener("submit", () => {
+                const button = form.querySelector("button");
+                const label = button.querySelector("#run-label");
+                button.disabled = true;
+                button.classList.add("is-loading");
+                if (label) {
+                    label.textContent = "Running checks…";
+                }
+                runStatus.textContent = "Network diagnostics are running. Please wait.";
+            });
         });
 
         const cards = Array.from(document.querySelectorAll("[data-command-card]"));
