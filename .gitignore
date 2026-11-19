@@ -1,6 +1,5 @@
 .env
 .venv/
-venv/
 __pycache__/
 *.py[cod]
 templates/oracleJdk-27/
