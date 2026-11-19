@@ -1,6 +1,32 @@
 from flask import Flask, render_template, request
 from netmiko import ConnectHandler
-from router_config import get_router_device
+import importlib
+import os
+
+
+def get_router_device():
+    """Load router settings from router_config or environment variables."""
+    try:
+        return importlib.import_module("router_config").get_router_device()
+    except ModuleNotFoundError as e:
+        if e.name != "router_config":
+            raise
+
+    required = ("ROUTER_HOST", "ROUTER_USERNAME", "ROUTER_PASSWORD")
+    missing = [key for key in required if not os.getenv(key)]
+    if missing:
+        raise RuntimeError(
+            "router_config.py is unavailable; set " + ", ".join(missing)
+        )
+    device = {
+        "device_type": os.getenv("ROUTER_DEVICE_TYPE", "cisco_ios"),
+        "host": os.environ["ROUTER_HOST"],
+        "username": os.environ["ROUTER_USERNAME"],
+        "password": os.environ["ROUTER_PASSWORD"],
+    }
+    if os.getenv("ROUTER_SECRET"):
+        device["secret"] = os.environ["ROUTER_SECRET"]
+    return device
 
 app = Flask(__name__)
 
