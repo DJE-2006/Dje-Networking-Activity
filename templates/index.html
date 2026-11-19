@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1020">
+    <title>Router diagnostics</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #0b1020;
+            color: #edf2ff;
+            font-synthesis: none;
+            text-rendering: optimizeLegibility;
+            --muted: #9aa8c2;
+            --line: rgba(148, 163, 184, 0.16);
+            --panel: rgba(17, 26, 48, 0.84);
+            --accent: #70e1d1;
+            --accent-strong: #38cdbc;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background:
+                radial-gradient(ellipse at 12% 0%, rgba(35, 91, 128, 0.24), transparent 38rem),
+                radial-gradient(ellipse at 100% 20%, rgba(47, 70, 127, 0.18), transparent 34rem),
+                #0b1020;
+        }
+
+        button, input {
+            font: inherit;
+        }
+
+        button:focus-visible, input:focus-visible, summary:focus-visible {
+            outline: 3px solid #facc15;
+            outline-offset: 3px;
+        }
+
+        .shell {
+            width: min(100% - 40px, 1040px);
+            margin: 0 auto;
+            padding: 48px 0 64px;
+        }
+
+        .topline {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 22px;
+            color: #b7c5df;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .brand-mark {
+            display: grid;
+            width: 30px;
+            height: 30px;
+            place-items: center;
+            border: 1px solid rgba(112, 225, 209, 0.3);
+            border-radius: 9px;
+            background: rgba(112, 225, 209, 0.1);
+            color: var(--accent);
+        }
+
+        .hero {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 28px;
+            padding: 8px 0 30px;
+        }
+
+        h1, h2, p {
+            margin-top: 0;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            letter-spacing: -0.055em;
+            line-height: 1.05;
+        }
+
+        .subtitle {
+            max-width: 580px;
+            margin-bottom: 0;
+            color: var(--muted);
+            font-size: 1rem;
+            line-height: 1.65;
+        }
+
+        .run-form {
+            flex: 0 0 auto;
+        }
+
+        .primary-button, .tool-button, .copy-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            border: 1px solid transparent;
+            border-radius: 11px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+        }
+
+        .primary-button {
+            min-height: 48px;
+            padding: 0 18px;
+            background: var(--accent);
+            color: #06201e;
+            box-shadow: 0 8px 24px rgba(56, 205, 188, 0.15);
+        }
+
+        .primary-button:hover:not(:disabled) {
+            transform: translateY(-1px);
+            background: #a0f3e7;
+        }
+
+        .primary-button:disabled {
+            cursor: wait;
+            opacity: 0.8;
+        }
+
+        .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(6, 32, 30, 0.28);
+            border-top-color: #06201e;
+            border-radius: 50%;
+            animation: spin 700ms linear infinite;
+        }
+
+        .is-loading .spinner {
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .panel {
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: var(--panel);
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(14px);
+        }
+
+        .command-list {
+            padding: 22px;
+        }
+
+        .section-heading, .toolbar, .card-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .section-heading {
+            margin-bottom: 18px;
+        }
+
+        .section-heading h2 {
+            margin-bottom: 5px;
+            font-size: 1.12rem;
+            letter-spacing: -0.02em;
+        }
+
+        .section-heading p {
+            margin-bottom: 0;
+            color: var(--muted);
+            font-size: 0.88rem;
+        }
+
+        .count-badge {
+            flex: 0 0 auto;
+            padding: 6px 10px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            color: #c5d1e6;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .notice {
+            margin: 0 0 18px;
+            padding: 14px 16px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            line-height: 1.55;
+        }
+
+        .error {
+            border-color: rgba(248, 113, 113, 0.35);
+            background: rgba(127, 29, 29, 0.2);
+            color: #fecaca;
+        }
+
+        .toolbar {
+            margin-bottom: 16px;
+        }
+
+        .search-wrap {
+            position: relative;
+            flex: 1 1 280px;
+            max-width: 460px;
+        }
+
+        .search-wrap svg {
+            position: absolute;
+            top: 50%;
+            left: 13px;
+            color: #8290a9;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .search-input {
+            width: 100%;
+            min-height: 42px;
+            padding: 0 14px 0 40px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: rgba(7, 13, 27, 0.55);
+            color: #edf2ff;
+        }
+
+        .search-input::placeholder {
+            color: #7f8ca4;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tool-button, .copy-button {
+            min-height: 40px;
+            padding: 0 12px;
+            border-color: var(--line);
+            background: rgba(255, 255, 255, 0.025);
+            color: #cbd6e8;
+            font-size: 0.82rem;
+        }
+
+        .tool-button:hover, .copy-button:hover {
+            border-color: rgba(112, 225, 209, 0.4);
+            background: rgba(112, 225, 209, 0.08);
+            color: #e8fffb;
+        }
+
+        .command-card {
+            margin-top: 12px;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            background: rgba(7, 13, 27, 0.42);
+        }
+
+        .card-heading {
+            min-height: 62px;
+            padding: 12px 14px 12px 17px;
+        }
+
+        .command-title {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            min-width: 0;
+        }
+
+        .command-index {
+            display: grid;
+            width: 28px;
+            height: 28px;
+            flex: 0 0 auto;
+            place-items: center;
+            border-radius: 8px;
+            background: rgba(112, 225, 209, 0.1);
+            color: var(--accent);
+            font-size: 0.75rem;
+            font-weight: 800;
+        }
+
+        .command-title code {
+            overflow-wrap: anywhere;
+            color: #e5eeff;
+            font-size: 0.9rem;
+        }
+
+        .copy-button {
+            min-height: 34px;
+            flex: 0 0 auto;
+            padding: 0 10px;
+        }
+
+        details {
+            border-top: 1px solid var(--line);
+        }
+
+        summary {
+            padding: 10px 17px;
+            color: #9eacc4;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 700;
+            list-style-position: inside;
+        }
+
+        pre {
+            max-height: 520px;
+            margin: 0;
+            padding: 15px 18px 18px;
+            overflow: auto;
+            border-top: 1px solid rgba(148, 163, 184, 0.08);
+            color: #c4d2e8;
+            font: 0.84rem/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            tab-size: 4;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .empty-state {
+            display: grid;
+            min-height: 230px;
+            place-items: center;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            display: grid;
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 15px;
+            place-items: center;
+            border: 1px solid rgba(112, 225, 209, 0.22);
+            border-radius: 15px;
+            background: rgba(112, 225, 209, 0.08);
+            color: var(--accent);
+        }
+
+        .empty-state h2 {
+            margin-bottom: 7px;
+            font-size: 1rem;
+        }
+
+        .empty-state p {
+            max-width: 360px;
+            margin-bottom: 0;
+            color: var(--muted);
+            font-size: 0.88rem;
+            line-height: 1.6;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        @media (max-width: 680px) {
+            .shell {
+                width: min(100% - 28px, 1040px);
+                padding-top: 28px;
+            }
+
+            .hero {
+                align-items: stretch;
+                flex-direction: column;
+                gap: 20px;
+                padding-bottom: 24px;
+            }
+
+            .run-form, .primary-button {
+                width: 100%;
+            }
+
+            .command-list {
+                padding: 16px;
+            }
+
+            .toolbar {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .search-wrap {
+                max-width: none;
+            }
+
+            .toolbar-actions .tool-button {
+                flex: 1;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="shell">
+        <div class="topline">
+            <span class="brand-mark" aria-hidden="true">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 8.5 12 4l7 4.5-7 4.5-7-4.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                    <path d="m5 12 7 4.5 7-4.5M5 15.5 12 20l7-4.5" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                </svg>
+            </span>
+            Network tools <span aria-hidden="true">/</span> Router console
+        </div>
+
+        <section class="hero" aria-labelledby="page-title">
+            <div>
+                <h1 id="page-title">Router diagnostics</h1>
+                <p class="subtitle">Run a quick health check and review the command output in one place.</p>
+            </div>
+            <form class="run-form" id="run-form" method="post">
+                <button class="primary-button" id="run-button" type="submit">
+                    <span class="spinner" aria-hidden="true"></span>
+                    <svg class="run-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.64 5.64l2.12 2.12m8.48 8.48 2.12 2.12m0-12.72-2.12 2.12m-8.48 8.48-2.12 2.12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                    <span id="run-label">Run diagnostics</span>
+                </button>
+            </form>
+        </section>
+
+        {% if error %}
+            <div class="notice error" role="alert">{{ error }}</div>
+        {% endif %}
+
+        {% set commands = ["show version", "show ip interface brief", "show running-config"] %}
+        {% if results %}
+            <section class="panel command-list" aria-labelledby="results-title">
+                <div class="section-heading">
+                    <div>
+                        <h2 id="results-title">Command output</h2>
+                        <p>Review, search, or copy the results from this run.</p>
+                    </div>
+                    <span class="count-badge" id="result-count" aria-live="polite">{{ results|length }} commands</span>
+                </div>
+
+                <div class="toolbar">
+                    <label class="search-wrap">
+                        <span class="sr-only">Filter command output</span>
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.7"/>
+                            <path d="m16 16 4.2 4.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                        </svg>
+                        <input class="search-input" id="output-search" type="search" placeholder="Filter commands or output…">
+                    </label>
+                    <div class="toolbar-actions">
+                        <button class="tool-button" id="expand-all" type="button">Expand all</button>
+                        <button class="tool-button" id="collapse-all" type="button">Collapse all</button>
+                    </div>
+                </div>
+
+                <div id="command-results">
+                    {% for command in commands %}
+                        {% if command in results %}
+                            <article class="command-card" data-command-card>
+                                <div class="card-heading">
+                                    <div class="command-title">
+                                        <span class="command-index" aria-hidden="true">{{ loop.index }}</span>
+                                        <code>{{ command }}</code>
+                                    </div>
+                                    <button class="copy-button" type="button" data-copy-target="output-{{ loop.index }}" aria-label="Copy output for {{ command }}">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                            <rect x="8" y="8" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.7"/>
+                                            <path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="1.7"/>
+                                        </svg>
+                                        <span>Copy</span>
+                                    </button>
+                                </div>
+                                <details open>
+                                    <summary>Output</summary>
+                                    <pre id="output-{{ loop.index }}">{{ results[command] }}</pre>
+                                </details>
+                            </article>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <p class="sr-only" id="copy-status" aria-live="polite"></p>
+            </section>
+        {% elif not error %}
+            <section class="panel empty-state" aria-labelledby="empty-title">
+                <div>
+                    <span class="empty-icon" aria-hidden="true">
+                        <svg width="23" height="23" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="4" width="18" height="6" rx="2" stroke="currentColor" stroke-width="1.6"/>
+                            <rect x="3" y="14" width="18" height="6" rx="2" stroke="currentColor" stroke-width="1.6"/>
+                            <path d="M7 7h.01M7 17h.01M11 7h6m-6 10h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        </svg>
+                    </span>
+                    <h2 id="empty-title">Ready when you are</h2>
+                    <p>Run diagnostics to fetch read-only status from your router. Results will appear here.</p>
+                </div>
+            </section>
+        {% endif %}
+        <p class="sr-only" id="run-status" role="status" aria-live="polite"></p>
+    </main>
+
+    <script>
+        const runForm = document.getElementById("run-form");
+        const runButton = document.getElementById("run-button");
+        const runLabel = document.getElementById("run-label");
+        const runStatus = document.getElementById("run-status");
+
+        runForm.addEventListener("submit", () => {
+            runButton.disabled = true;
+            runButton.classList.add("is-loading");
+            runLabel.textContent = "Running diagnostics…";
+            runStatus.textContent = "Diagnostics are running. Please wait.";
+        });
+
+        const cards = Array.from(document.querySelectorAll("[data-command-card]"));
+        const search = document.getElementById("output-search");
+        const resultCount = document.getElementById("result-count");
+
+        if (search) {
+            search.addEventListener("input", () => {
+                const query = search.value.trim().toLowerCase();
+                let visibleCount = 0;
+
+                cards.forEach((card) => {
+                    const matches = card.textContent.toLowerCase().includes(query);
+                    card.hidden = !matches;
+                    if (matches) visibleCount += 1;
+                });
+
+                resultCount.textContent = `${visibleCount} of ${cards.length} commands`;
+            });
+        }
+
+        document.getElementById("expand-all")?.addEventListener("click", () => {
+            document.querySelectorAll("#command-results details").forEach((item) => {
+                item.open = true;
+            });
+        });
+
+        document.getElementById("collapse-all")?.addEventListener("click", () => {
+            document.querySelectorAll("#command-results details").forEach((item) => {
+                item.open = false;
+            });
+        });
+
+        const copyStatus = document.getElementById("copy-status");
+
+        async function copyText(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(text);
+                return;
+            }
+
+            const temporaryInput = document.createElement("textarea");
+            temporaryInput.value = text;
+            temporaryInput.setAttribute("readonly", "");
+            temporaryInput.style.position = "fixed";
+            temporaryInput.style.opacity = "0";
+            document.body.appendChild(temporaryInput);
+            temporaryInput.select();
+            const copied = document.execCommand("copy");
+            temporaryInput.remove();
+
+            if (!copied) {
+                throw new Error("Clipboard access is unavailable");
+            }
+        }
+
+        document.querySelectorAll("[data-copy-target]").forEach((button) => {
+            button.addEventListener("click", async () => {
+                const output = document.getElementById(button.dataset.copyTarget);
+                const label = button.querySelector("span");
+
+                try {
+                    await copyText(output.textContent);
+                    label.textContent = "Copied";
+                    copyStatus.textContent = "Command output copied to clipboard.";
+                    window.setTimeout(() => {
+                        label.textContent = "Copy";
+                    }, 1600);
+                } catch (error) {
+                    copyStatus.textContent = "Could not copy output. Select and copy it manually.";
+                    console.error("Could not copy command output:", error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
